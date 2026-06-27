@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="public/dot_ehail.png" alt="Dot.Ehail" width="280" />
+
 <h1>Dot.Ehail</h1>
 
 <p>E-hailing platform — request rides, manage drivers and vehicles, and track trips in real time.</p>
