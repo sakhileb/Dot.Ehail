@@ -15,6 +15,32 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        $totalRides       = \App\Models\Ride::count();
+        $activeRides      = \App\Models\Ride::whereIn('status', ['accepted', 'en_route', 'arrived', 'in_progress'])->count();
+        $completedRides   = \App\Models\Ride::where('status', 'completed')->count();
+        $cancelledRides   = \App\Models\Ride::where('status', 'cancelled')->count();
+        $requestedRides   = \App\Models\Ride::where('status', 'requested')->count();
+
+        $totalDrivers     = \App\Models\DriverProfile::count();
+        $availableDrivers = \App\Models\DriverProfile::where('is_online', true)->count();
+        $approvedDrivers  = \App\Models\DriverProfile::where('status', 'approved')->count();
+
+        $totalRevenue     = \App\Models\Ride::where('status', 'completed')->sum('final_fare');
+
+        $statusCounts = \App\Models\Ride::selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $recentRides = \App\Models\Ride::with(['driver', 'passenger', 'vehicle'])
+            ->latest()
+            ->limit(10)
+            ->get();
+
+        return view('dashboard', compact(
+            'totalRides', 'activeRides', 'completedRides', 'cancelledRides', 'requestedRides',
+            'totalDrivers', 'availableDrivers', 'approvedDrivers',
+            'totalRevenue', 'statusCounts', 'recentRides'
+        ));
     })->name('dashboard');
 });
